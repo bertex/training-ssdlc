@@ -11,7 +11,7 @@ Requirements:
 
 First, we will make a clone of the project to be analysed. As you can see, it's the same project we've seen in [SAST lab 1](.. /Lab1%20-%20SAST/README.md)
 
-'''Bash
+``` Bash
 git clone https://github.com/bertex/BikeLineViewer-AST
 
 ```
