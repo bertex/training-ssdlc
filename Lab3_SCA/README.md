@@ -1,33 +1,33 @@
-# LAB 3 - SCA
+#LAB 3 – SCA
 
-En este laboratorio, aprenderemos a usar la herramienta [Trivy](https://trivy.dev/) para listar y analizar dependencias de repositorios remotos.
+In this lab, we'll learn how to use the [Trivy](https://trivy.dev/) tool to list and analyse dependencies on remote repositories.
 
-Requisitos:
+Requirements:
 
 - [Docker](https://docs.docker.com/)
 - [Git](https://git-scm.com/)
 
-Esta herramienta de código abierto es uno de los escáneres de seguridad más populares.
+This open-source tool is one of the most popular security scanners.
 
-- Objetivos (que puede analizar trivy):
+- Objectives (which can be analysed by trivy):
 
-  - Imágenes de contenedores
-  - Sistemas de ficheros
-  - Repositorios Git (remoto)
-  - Imágenes de máquinas virtuales
-  - Manifiestos Kubernetes
+  - Container images
+  - File systems
+  - Git repositories (remote)
+  - Virtual machine images
+  -Kubernetes manifests
   - AWS...
 
-- Escáneres (que puede encontrar trivy):
-  - Paquetes del sistema operativo y dependencias de software en uso (SBOM)
-  - Vulnerabilidades conocidas (CVEs)
-  - Problemas de IaC y configuraciones incorrectas
-  - Información sensible y secretos
-  - Licencias de software
+- Scanners (which you can find trivy):
+  - Operating system packages and software-in-use dependencies (SBOMs)
+  - Known vulnerabilities (CVEs)
+  - IaC issues and misconfigurations
+  - Sensitive information and secrets
+  - Software licenses
 
-## Instalación Trivy
+## Trivy Installation
 
-Trivy está disponible en los repositorios de paquetes más utilizados y solo está disponible para Linux. Dada esta limitación, y para evitar la instalación de paquetes, usaremos la [imagen Docker oficial](https://hub.docker.com/r/aquasec/trivy/) para ejecutar la herramienta.
+Trivy is available in the most commonly used package repositories and is only available for Linux. Given this limitation, and to avoid installing packages, we'll use the [official Docker image](https://hub.docker.com/r/aquasec/trivy/) to run the tool.
 
 ```bash
 docker pull aquasec/trivy:0.50.2
@@ -35,15 +35,15 @@ docker pull aquasec/trivy:0.50.2
 
 ## BikeLaneMap
 
-En esta práctica, utilizaremos el proyecto [`BikelaneMap`](https://github.com/TheMatrix97/BikeLaneViewer_AST), que hemos visto en los anteriores laboratorios. Se trata de una aplicación web escrita en `NodeJS` utilizando el framework [`Express`](https://www.npmjs.com/package/express). 
+In this practice, we will use the ['BikelaneMap'](https://github.com/TheMatrix97/BikeLaneViewer_AST) project, which we have seen in the previous labs. It is a web application written in 'NodeJS' using the ['Express'](https://www.npmjs.com/package/express) framework. 
 
-- Puedes clonar el proyecto en local, si no lo has hecho ya
+- You can clone the project locally, if you haven't already done so
 
 ```bash
-git clone https://github.com/TheMatrix97/BikeLaneViewer_AST.git
+git clone https://github.com/bertex/BikeLineViewer-AST.git
 ```
 
-Nuestro compañero nos ha avisado de que ya tiene lista una nueva funcionalidad de la aplicación. Estos cambios los ha dejado en una rama aparte llamada `new_feature`. Haremos un `checkout` de esa rama para descargar sus cambios en local
+Our colleague has told us that he has a new functionality of the application ready. These changes have been left in a separate branch called 'new_feature'. We will check out that branch to download its changes locally
 
 ```bash
 git fetch origin
@@ -53,19 +53,19 @@ git fetch origin
 git checkout -b new_feature origin/new_feature
 ```
 
-Generaremos la imagen docker en local para verificar que el proceso de generación funciona bien
+We will generate the docker image locally to verify that the generation process works well
 
 ```bash
 docker build -t bikelanemap:latest .
 ```
 
 
-## SCA con Trivy
+## SCA with Trivy
 
-Queremos subir a producción esta aplicación, para incluir las nuevas funcionalidades.
-Pero, antes que nada, tendremos que analizar la imagen Docker, revisando posibles vulnerabilidades de las dependencias o errores de configuración.
+We want to put this application into production, to include the new functionalities.
+But, first of all, we will have to analyse the Docker image, reviewing possible vulnerabilities of dependencies or configuration errors.
 
-Para ello, crearemos un contenedor Docker temporal para ejecutar la herramienta. Previamente, generaremos un volumen Docker para que Trivy pueda crear una caché de la base de datos de vulnerabilidades, y acelerar posteriores ejecuciones.
+To do this, we'll create a temporary Docker container to run the tool. Previously, we will generate a Docker volume so that Trivy can create a cache of the vulnerability database, and speed up subsequent executions.
 
 ```bash
 docker volume create trivy_cache
@@ -75,15 +75,15 @@ docker volume create trivy_cache
 docker run --rm -v //var/run/docker.sock:/var/run/docker.sock -v trivy_cache:/root/.cache/ aquasec/trivy:0.50.2 image bikelanemap:latest
 ```
 
-**TODO:** Identifica las diferentes vulnerabilidades que tiene la imagen y dónde se encuentran.
+**ALL:** Identify the different vulnerabilities in the image and where they are located.
 
 <details>
-<summary>Pista</summary>
+<summary>Hint</summary>
 
-- Secretos
+- Secrets
 
-- Vulnerabilidades NPM (package.json)
+- NPM Vulnerabilities (package.json)
 </details>
 
 
-**TODO:** Intenta solucionar todas las vulnerabilidades que has encontrado. *(No hace falta tocar el código fuente .js ni .html!!)*, solamente la configuración del proyecto
+**ALL:** Try to fix all the vulnerabilities you've found. *(No need to touch the source code .js or .html!!) *, Project configuration only
