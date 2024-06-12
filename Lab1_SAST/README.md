@@ -1,18 +1,18 @@
 # LAB 1 - SAST
 
-En este laboratorio, aprenderemos a usar la herramienta [SonarQube](https://www.sonarsource.com/products/sonarqube/) y las funcionalidades que incorpora en cuanto al análisis estático de código.
-También veremos cómo utilizar la herramienta standalone CLI [Semgrep](https://github.com/returntocorp/semgrep).
+In this lab, we will learn how to use the [SonarQube](https://www.sonarsource.com/products/sonarqube/) tool and the functionalities it incorporates in terms of static code analysis.
+We'll also look at how to use the standalone CLI [Semgrep](https://github.com/returntocorp/semgrep) tool.
 
-Requisitos:
+Requirements:
 
 - [Docker](https://docs.docker.com/)
 - [Git](https://git-scm.com/)
-- [Postman](https://www.postman.com/) (Opcional)
+- [Postman](https://www.postman.com/) (Optional)
 
-## Clon del proyecto
+## Project clone
 
-Primero, haremos un fork y un clon del proyecto que analizaremos en esta práctica.
-(<https://github.com/TheMatrix97/BikeLaneViewer_AST>)
+First, we will make a fork and a clone of the project that we will analyse in this practice.
+(<https://github.com/bertex/BikeLineViewer-AST>)
 
 ![fork repo](./fig/fork_dotnet_repo.png)
 
@@ -31,59 +31,58 @@ docker volume create sonar_data
 docker run -d --name sonarqube -p 9000:9000 -v sonar_data:/opt/sonarqube/data --network sonar_network sonarqube:10.4-community
 ```
 
-A continuación, abriremos un navegador y accederemos a `http://localhost:9000`. Donde deberíamos ver la pantalla de inicio de sesión de SonarQube
+Next, we will open a browser and access 'http://localhost:9000'. Where we should see the SonarQube login screen
 
 ![alt text](./fig/login_sonarq.png)
 
-Accederemos con el usuario `admin`, contraseña `admin`. Nos pedirá cambiar la contraseña por una diferente y ya deberíamos ver el dashboard principal de la aplicación
+We will access with the username 'admin', password 'admin'. It will ask us to change the password for a different one and we should already see the main dashboard of the application
 
 ![Dashboard sonarqube](./fig/ini_sonarq.png)
 
 ![](./fig/ini_sonarq.PNG)
 
-### Creación del proyecto
+### Project creation
 
-Primero que todo, crearemos un proyecto nuevo manualmente, que hará referencia a nuestra API. Haciendo clic en la opción `Create a local project`
+First of all, we'll create a new project manually, which will reference our API. By clicking on the 'Create a local project' option
 
-En este ejemplo, le indicaremos el nombre y clave de proyecto `bikelane_map_app`, definiendo la rama `master` como la principal del proyecto
+In this example, we'll point you to the project name and key 'bikelane_map_app', defining the 'master' branch as the main branch of the project
 
 
 ![Create project sonarqube](./fig/create_project.png)
 
-A continuación le indicaremos que detecte cualquier cambio como código nuevo, con la opción `Use the global setting`
+Next, we'll instruct you to detect any changes as new code, with the option 'Use the global setting'
 
-Si todo ha ido bien, ahora deberíamos ver la vista del proyecto vacía
+If everything went well, we should now see the project view empty
 
 ![Empty project sonarqube](./fig/empty_project_sonarq.PNG)
 
-### Generación del API Token
+### API Token Generation
 
-Para poder ejecutar el `sonar-scanner` deberemos generar un token de análisis, para hacerlo, deberemos acceder a la sección de seguridad y generar un token global, que nos permitirá analizar cualquier proyecto
+To be able to run the 'sonar-scanner' we must generate an analysis token, to do so, we must access the security section and generate a global token, which will allow us to analyse any project
 
 ![Generate token sonarq](./fig/generate_token.png)
 
-**¡Apunta el Token en un Bloc de notas!** No se volverá a mostrar...
+**Write down the Token in a Notepad!** It will not be displayed again...
 
-### Análisis de código
+### Code analysis
 
-En este punto, ya podemos ejecutar el primer escaneo de código. Debemos tener en cuenta que SonarQube dispone de diferentes escáneres especializados, según la herramienta que usemos para compilar el proyecto:
+At this point, we can already run the first code scan. We must bear in mind that SonarQube has different specialized scanners, depending on the tool we use to compile the project:
 - Gradle
-- .NET
-- Maven
-- Ant
+-.NET
+-Maven
+-Ant
 
-y uno genérico `SonarScanner`. Según el proyecto, nos puede interesar usar el escáner específico, ya que nos proporcionará más información que el genérico.
+and a generic 'SonarScanner'. Depending on the project, we may be interested in using the specific scanner, as it will provide us with more information than the generic one.
 
-Para más información puedes consultar la documentación de SonarQube referente a los [Scanners](https://docs.sonarsource.com/sonarqube/9.9/analyzing-source-code/scanners/sonarscanner/).
+For more information you can consult the SonarQube documentation regarding [Scanners](https://docs.sonarsource.com/sonarqube/9.9/analyzing-source-code/scanners/sonarscanner/).
 
-En nuestro caso, como la aplicación está programada en JavaScript con `NodeJS`, utilizaremos la imagen por defecto de [sonnar-scanner-cli]((https://hub.docker.com/r/sonarsource/sonar-scanner-cli))
+In our case, as the application is programmed in JavaScript with 'NodeJS', we will use the default image of [sonnar-scanner-cli]((https://hub.docker.com/r/sonarsource/sonar-scanner-cli))
 
-
-Solo deberemos reemplazar los siguientes parámetros:
+We will only have to replace the following parameters:
 
 - **$HOST**: `http://sonarqube:9000` -> (Host local)
-- **$TOKEN**: `sqa_*` -> (Token de autenticación que hemos obtenido en el paso anterior)
-- **$KEY**: `bikelane_map_app` -> (Identificador del proyecto)
+- **$TOKEN**: `sqa_*` -> (Authentication token that we obtained in the previous step)
+- **$KEY**: `bikelane_map_app` -> (Project ID)
   
 ```bash
 cd BikeLaneViewer_AST
@@ -95,7 +94,7 @@ docker run --rm \
     sonarsource/sonar-scanner-cli
 ```
 
-Si todo ha ido bien, deberíamos ver el siguiente output:
+If everything has gone well, we should see the following output:
 
 ```txt
 ....
@@ -111,20 +110,20 @@ INFO: Final Memory: 22M/80M
 INFO: ------------------------------------------------------------------------
 ```
 
-Como puedes ver en el dashboard, tenemos 5 `Security Hostspots` que deberíamos revisar para ver si pueden ser problemas de seguridad.
-¿Qué problemas tiene este código?
+As you can see in the dashboard, we have 5 Security Hostspots that we should check to see if they may be security issues.
+What problems does this code have?
 
 ![Security review](./fig/security_review.png)
 
 ## Semgrep
 
-Semgrep se distribuye como una herramienta CLI mediante PyPI, en nuestro caso, usaremos la [imagen Docker oficial](), así nos ahorramos la instalación de la herramienta.
+Semgrep is distributed as a CLI tool through PyPI, in our case, we will use the [official Docker image](), thus saving the installation of the tool.
 
 ```bash
 docker pull returntocorp/semgrep
 ```
 
-Si ejecutamos el comando help, deberíamos ver el `usage` de la herramienta CLI
+If we run the help command, we should see the 'usage' of the CLI tool
 
 ```bash
 docker run --rm returntocorp/semgrep semgrep --help
@@ -133,18 +132,18 @@ docker run --rm returntocorp/semgrep semgrep --help
 Usage: semgrep [OPTIONS] COMMAND [ARGS]...
 ```
 
-Ejecutamos la herramienta de escaneo en [modo offline](https://semgrep.dev/docs/getting-started/), mapeando el contenido del proyecto al path `/src`
+We run the scan tool in [offline mode](https://semgrep.dev/docs/getting-started/), mapping the contents of the project to the path '/src'
 
 ```bash
 docker run --rm -v ${PWD}:/src returntocorp/semgrep semgrep scan --config=auto
 ```
 
-**¿Qué vulnerabilidades has encontrado? ¿Más o menos que en SonarQube?**
+**What vulnerabilities have you found? More or less than SonarQube?**
 
 
-# Limpieza
+# Cleaning
 
-Limpia los recursos desplegados en este workshop:
+Clean up the resources deployed in this workshop:
 
 - Sonarqube
 
