@@ -13,6 +13,7 @@ First, we will make a clone of the project to be analysed. As you can see, it's 
 
 '''Bash
 git clone https://github.com/bertex/BikeLineViewer-AST
+
 ```
 
 ## Code Inspection
