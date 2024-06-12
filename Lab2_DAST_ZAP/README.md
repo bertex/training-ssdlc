@@ -1,23 +1,23 @@
-# LAB 2.1 - Análisis de APIs con OWASP ZAP (DAST)
+#LAB 2 – API Analysis with OWASP ZAP (DAST)
 
-En este laboratorio veremos cómo analizar dinámicamente APIs con la herramienta OWASP ZAP, aplicando las reglas del [OWASP Top 10](https://owasp.org/www-project-top-ten/).
+In this lab we will see how to dynamically analyse APIs with the OWASP ZAP tool, applying the rules of [OWASP Top 10](https://owasp.org/www-project-top-ten/).
 
-Requisitos:
+Requirements:
 
 - [Docker](https://docs.docker.com/)
 - [Git](https://git-scm.com/)
 
-## Clonar el proyecto
+## Clone the project
 
-Primero, haremos un clon del proyecto a analizar. Como puedes ver, es el mismo proyecto que hemos visto en el [laboratorio 1 de SAST](../Lab1%20-%20SAST/README.md)
+First, we will make a clone of the project to be analysed. As you can see, it's the same project we've seen in [SAST lab 1](.. /Lab1%20-%20SAST/README.md)
 
-```bash
+'''Bash
 git clone https://github.com/TheMatrix97/BikeLaneViewer_AST
 ```
 
-## Inspección del código
+## Code Inspection
 
-El proyecto es un Mapa interactivo de los carriles bici de Barcelona, pero además, incluye una funcionalidad para dar de alta un usuario vía API REST creada con `NodeJS + Express`. Un `CRUD` básico de usuarios con los siguientes endpoints:
+The project is an interactive map of Barcelona's bike lanes, but it also includes a functionality to register a user via REST API created with 'NodeJS + Express'. A basic 'CRUD' of users with the following endpoints:
 
 ```text
 POST   /api/users
@@ -27,25 +27,25 @@ PUT    /api/users/{id}
 DELETE /api/users/{id}
 ```
 
-Además de un endpoint para obtener los datos de OpenData sobre los carriles bici: `GET /api/data/bikelanes`
+In addition to an endpoint to obtain OpenData data on bike lanes: 'GET /api/data/bikelanes'
 
 
-## Ejecución de la aplicación
+## Running the app
 
-Generamos la imagen `Docker` a partir del `Dockerfile`
+We generate the 'Docker' image from the 'Dockerfile'
 
 ```bash
 cd BikeLaneViewer_AST
 docker build -t bikelanemap:latest .
 ```
 
-Crearemos y ejecutaremos un contenedor basado en la imagen que hemos generado anteriormente, mapeando la aplicación al puerto 3000.
+We'll create and run a container based on the image we've generated earlier, mapping the application to port 3000.
 
 ```bash
 docker run -d --name bikelanemap -p 3000:3000 bikelanemap:latest
 ```
 
-Si todo ha funcionado bien, deberíamos encontrar la aplicación levantada en el puerto `3000`. Si ejecutamos un `GET` en el endpoint `/users`, debería devolvernos un array vacío.
+If everything has worked well, we should find the app lifted on port '3000'. If we run a 'GET' on the '/users' endpoint, it should return an empty array.
 
 ```bash
 curl --location 'http://localhost:3000/api/users'
@@ -53,9 +53,9 @@ curl --location 'http://localhost:3000/api/users'
 []
 ```
 
-Si estás en Windows y no dispones de la herramienta [cURL](https://curl.se/), puedes usar la interfaz web de Swagger (http://localhost:3000/api/doc/) para generar las peticiones HTTP.
+If you're on Windows and don't have the [cURL](https://curl.se/) tool, you can use the Swagger web interface (http://localhost:3000/api/doc/) to generate HTTP requests.
 
-Para poder añadir una persona, tendremos que hacer un POST al endpoint `/api/users` con esta información:
+To be able to add a person, we will have to make a POST to the endpoint '/api/users' with this information:
 
 ```json
 {
@@ -73,7 +73,7 @@ curl --location 'http://localhost:3000/api/users' \
 }'
 ````
 
-Esta petición debería devolvernos el siguiente mensaje, con los datos del usuario creado
+This request should return the following message, with the data of the user created
 
 ```json
 {
@@ -84,15 +84,15 @@ Esta petición debería devolvernos el siguiente mensaje, con los datos del usua
 ```
 
 
-## Escaneo automático con OWASP ZAP
+## Automatic scanning with OWASP ZAP
 
-Ahora que tenemos la API en marcha, ejecutaremos el escaneo automático de OWASP ZAP utilizando la definición de la misma en OpenAPI (http://localhost:3000/api/doc/swagger.json).
+Now that we have the API up and running, we'll run the automatic scanning of OWASP ZAP using the definition of the API in OpenAPI (http://localhost:3000/api/doc/swagger.json).
 
 ```bash
 docker run --rm -t ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py -t http://host.docker.internal:3000/api/doc/swagger.json -f openapi
 ```
 
-Este comando debería devolvernos el siguiente resultado
+This command should return the following result
 
 ```text
 ....
@@ -152,18 +152,18 @@ WARN-NEW: Cloud Metadata Potentially Exposed [90034] x 1
 FAIL-NEW: 0     FAIL-INPROG: 0  WARN-NEW: 12    WARN-INPROG: 0  INFO: 0 IGNORE: 0       PASS: 100
 ```
 
-Como puedes ver, la aplicación no está tan mal, genera 12 advertencias.
+As you can see, the app isn't too bad, it generates 12 warnings.
 
-Accede a los datos de los clientes via `Curl`
+Access customer data via 'Curl'
 
 ```bash
 curl --location 'http://localhost:3000/api/users'
 ```
-Como puedes observar, aparecen todas las pruebas que ha hecho `ZAP` para verificar todas las reglas que tiene almacenadas.
+As you can see, all the tests that 'ZAP' has done to verify all the rules it has stored appear.
 
-A continuación, modificaremos la aplicación para generar más advertencias. Intencionadamente, añadiremos un error 500 en el endpoint `GET /api/users` e incluiremos información del `stackTrace` en la respuesta.
+Next, we'll modify the app to generate more warnings. We will intentionally add a 500 error to the 'GET /api/users' endpoint and include 'stackTrace' information in the response.
 
-Solo tendremos que modificar el archivo `./controllers/usersController.js`, y sustituiremos el método de respuesta `GET` sobre el endpoint raiz `/` por este:
+We will only have to modify the file './controllers/usersController.js', and we will replace the response method 'GET' on the root endpoint '/' with this:
 
 ```js
 // Route to get all users
@@ -187,20 +187,20 @@ router.get('/', (req, res) => {
 });
 ```
 
-Detenemos el servicio de la API
+We stop the API service
 
 ```bash
 docker rm -f bikelanemap
 ```
 
-Generamos la imagen Docker actualizada y ejecutamos el contenedor de nuevo
+We generate the updated Docker image and run the container again
 
 ```bash
 docker build -t bikelanemap:latest .
 docker run -d --name bikelanemap -p 3000:3000 bikelanemap:latest
 ```
 
-**Si ahora volvemos a ejecutar el escáner, deberíamos ver algunos errores adicionales... ¿Cuáles?**
+**If we now run the scanner again, we should see some additional errors... Which ones?**
 
 ```bash
 docker run --rm -t ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py -t http://host.docker.internal:3000/api/doc/swagger.json -f openapi
