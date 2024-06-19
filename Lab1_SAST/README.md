@@ -68,9 +68,9 @@ To be able to run the 'sonar-scanner' we must generate an analysis token, to do 
 
 At this point, we can already run the first code scan. We must bear in mind that SonarQube has different specialized scanners, depending on the tool we use to compile the project:
 - Gradle
--.NET
--Maven
--Ant
+- NET
+- Maven
+- Ant
 
 and a generic 'SonarScanner'. Depending on the project, we may be interested in using the specific scanner, as it will provide us with more information than the generic one.
 
